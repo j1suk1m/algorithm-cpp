@@ -12,7 +12,6 @@ int backtrack(vector<int>& numbers, int idx, int result, int target) {
     int plusResult = backtrack(numbers, idx + 1, result + numbers[idx + 1], target);
     
     return minusResult + plusResult;
-    
 }
 
 int solution(vector<int> numbers, int target) {
