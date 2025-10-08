@@ -4,16 +4,7 @@
 
 using namespace std;
 
-// numbers의 모든 요소가 0인지 확인
-bool isAllZero(vector<int>& numbers) {
-    for (int number : numbers) {
-        if (number != 0) {
-            return false;
-        }
-    }
-    
-    return true;
-}
+bool isAllZero(vector<int>&);
 
 string solution(vector<int> numbers) {
     string answer = "";
@@ -31,7 +22,7 @@ string solution(vector<int> numbers) {
     }
     
     // 정수를 이어 붙여서 더 큰 수를 만들 수 있는 순서대로 정렬
-    sort(numberStrings.begin(), numberStrings.end(), [](string s1, string s2) {
+    sort(numberStrings.begin(), numberStrings.end(), [](const string& s1, const string& s2) {
         return stoi(s1 + s2) > stoi(s2 + s1);
     });
     
@@ -40,4 +31,15 @@ string solution(vector<int> numbers) {
     }
     
     return answer;
+}
+
+// numbers의 모든 요소가 0인지 확인
+bool isAllZero(vector<int>& numbers) {
+    for (int number : numbers) {
+        if (number != 0) {
+            return false;
+        }
+    }
+    
+    return true;
 }
