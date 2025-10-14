@@ -14,8 +14,7 @@ const char CAVE = 'D';
 const char HEDGEHOG = 'S';
 
 // 좌표 이동
-const vector<int> dx = {-1, 1, 0, 0};
-const vector<int> dy = {0, 0, -1, 1};
+const vector<pair<int, int>> dr = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
 // 맵 크기
 int R, C;
@@ -34,11 +33,11 @@ int answer;
 
 // 범용 템플릿 함수 // 2차원 벡터 v를 R * C 크기로 재조정
 template <typename T> 
-void resize2DVector(vector<vector<T>> &v, const T &init = T()) {
+void resize2DVector(vector<vector<T>> &v) {
     v.resize(R);
 
     for (int i = 0; i < R; i++) {
-        v[i].resize(C, init);
+        v[i].resize(C, T());
     }
 }
 
@@ -108,9 +107,9 @@ void flow() {
         time = waterTime[x][y];
 
         // 상하좌우 이동
-        for (int i = 0; i < dx.size(); i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
+        for (const auto& [dx, dy] : dr) {
+            int nx = x + dx;
+            int ny = y + dy;
 
             if (isOutOfRange(nx, ny)) continue;
             if (map[nx][ny] == STONE || map[nx][ny] == CAVE) continue;
@@ -142,10 +141,10 @@ bool canArriveAtCave() {
         }
 
         // 상하좌우 이동
-        for (int i = 0; i < dx.size(); i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-
+        for (const auto& [dx, dy] : dr) {
+            int nx = x + dx;
+            int ny = y + dy;
+            
             if (isOutOfRange(nx, ny) || visited[nx][ny]) continue;
             if (map[nx][ny] == STONE) continue;
             if (waterTime[nx][ny] != 0 && waterTime[nx][ny] <= time + 1) continue;
