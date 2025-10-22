@@ -1,4 +1,3 @@
-#include <string>
 #include <vector>
 #include <queue>
 
@@ -8,32 +7,31 @@ using namespace std;
 
 vector<int> solution(vector<int> progresses, vector<int> speeds) {
     vector<int> answer;
-    queue<pair<int, int>> q;
+    queue<int> q;
+    int taskCount = (int)progresses.size();
     
-    // 큐에 작업 진도, 개발 속도 저장
-    for (int i = 0; i < (int)progresses.size(); i++) {
-        q.push(make_pair(progresses[i], speeds[i]));
+    // 큐에 작업당 배포 가능한 날짜 저장
+    for (int i = 0; i < taskCount; i++) {
+        q.push(CEIL(100 - progresses[i], speeds[i]));
     }
     
-    int deploymentCount = 0;
-    int day = 1;
+    // 첫번째 작업 배포
+    int deploymentCount = 1;
+    int day = q.front(); q.pop();
     
     while (!q.empty()) {
-        auto [progress, speed] = q.front(); q.pop();
+        int targetDay = q.front(); q.pop();
         
-        if (100 - progress <= speed * day) {
+        if (day >= targetDay) { // 현재 날짜에 작업을 바로 배포할 수 있는 경우
             deploymentCount++;
         } else {
-            if (deploymentCount > 0) answer.push_back(deploymentCount);                
-            
+            answer.push_back(deploymentCount);
             deploymentCount = 1;
-            day = CEIL(100 - progress, speed);
+            day = targetDay;
         }
     }
     
-    if (deploymentCount > 0) {
-        answer.push_back(deploymentCount);
-    }
+    answer.push_back(deploymentCount);
     
     return answer;
 }
