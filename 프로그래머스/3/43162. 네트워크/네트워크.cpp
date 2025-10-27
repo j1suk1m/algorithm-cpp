@@ -1,46 +1,45 @@
-#include <string>
 #include <vector>
 
 using namespace std;
 
-const int CONNECTION = 1;
 const int MAX = 200;
+const int CONNECT = 1;
 
-vector<int> adjacentList[MAX];
-bool visited[MAX];
+vector<vector<int>> graph(MAX, vector<int>()); // 인접 리스트
+vector<bool> visited(MAX, false); // 방문 여부
 
-// solution 아래에 선언하면 undeclared identifier 에러 발생
-// 프로토타입 사용하거나, solution보다 먼저 선언해야 함
-void runDfs(int curr) {
-    visited[curr] = true;
-    
-    for (int next : adjacentList[curr]) {
-        if (!visited[next]) {
-            runDfs(next);
-        }
-    }
-}
+void dfs(int curr);
 
-int solution(int n, vector<vector<int>> computers) {
-    int answer = 0;
-    
+int solution(int n, vector<vector<int>> computers) {    
     // 양방향 연결 관계 저장
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            if (i != j && computers[i][j] == CONNECTION) {
-                adjacentList[i].push_back(j);
-                adjacentList[j].push_back(i);
+            if (i != j && computers[i][j] == CONNECT) {
+                graph[i].push_back(j);
+                graph[j].push_back(i);
             }
         }
     }
     
-    // dfs를 이용한 네트워크 개수 계산
-    for (int i = 0; i < n; i++) {
-        if (!visited[i]) {
-            runDfs(i);
+    int answer = 0;
+    
+    // 깊이 우선 탐색
+    for (int node = 0; node < n; node++) {
+        if (!visited[node]) {
+            dfs(node); // 해당 node와 동일한 네트워크에 있는 모든 node 방문
             answer++;
         }
     }
     
     return answer;
+}
+
+void dfs(int curr) {
+    visited[curr] = true;
+    
+    for (int next : graph[curr]) {
+        if (!visited[next]) {
+            dfs(next);
+        }
+    }
 }
