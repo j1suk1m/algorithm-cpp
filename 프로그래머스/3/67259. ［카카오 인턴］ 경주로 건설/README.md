@@ -1,6 +1,6 @@
 # [level 3] [카카오 인턴] 경주로 건설 - 67259 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/67259?gad_source=1&gad_campaignid=22199869887&gbraid=0AAAAAC_c4nD55gxiR1m078nXT4c9kBBb4&gclid=Cj0KCQjwmYzIBhC6ARIsAHA3IkS4amuCDVc0ivNmDUyZxhU4_SYZ8Y7hi8N-MvtvNnEiEiyKFdzvkHQaAlmkEALw_wcB) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/67259?gad_source=1&gad_campaignid=22199869887&gbraid=0AAAAAC_c4nD55gxiR1m078nXT4c9kBBb4&gclid=Cj0KCQjw9obIBhCAARIsAGHm1mR1hlI1jvighmHa2MR0ov_xmn2nbiJy1_j87lIiFLFrs7Jyhw29n7caAvf9EALw_wcB) 
 
 ### 성능 요약
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2025년 10월 30일 16:23:43
+2025년 10월 30일 16:24:35
 
 ### 문제 설명
 
