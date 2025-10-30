@@ -1,10 +1,10 @@
 # [level 3] [카카오 인턴] 경주로 건설 - 67259 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/67259?gad_source=1&gad_campaignid=22199869887&gbraid=0AAAAAC_c4nD55gxiR1m078nXT4c9kBBb4&gclid=Cj0KCQjw9obIBhCAARIsAGHm1mR1hlI1jvighmHa2MR0ov_xmn2nbiJy1_j87lIiFLFrs7Jyhw29n7caAvf9EALw_wcB) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/67259?gad_source=1&gad_campaignid=22799790467&gbraid=0AAAAAC_c4nAeMC7waNWSX0DkqlE0XUQ2J&gclid=Cj0KCQjwmYzIBhC6ARIsAHA3IkRoBHOTaQpPkJdEbo6VmCU_iWZ3AD1jFJbjC_5A-Oz5ZtFjYAYqIQ4aAjAKEALw_wcB) 
 
 ### 성능 요약
 
-메모리: 4.18 MB, 시간: 0.61 ms
+메모리: 9.34 MB, 시간: 106.93 ms
 
 ### 구분
 
@@ -12,11 +12,11 @@
 
 ### 채점결과
 
-정확성: 100.0<br/>합계: 100.0 / 100.0
+정확성: 100.0<br/>효율성: 0.0<br/>합계: 100.0 / 100.0
 
 ### 제출 일자
 
-2025년 10월 30일 16:24:35
+2025년 10월 30일 20:39:53
 
 ### 문제 설명
 
