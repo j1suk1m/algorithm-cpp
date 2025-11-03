@@ -1,10 +1,10 @@
 # [level 2] 무인도 여행 - 154540 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/154540?gad_source=1&gad_campaignid=22799790467&gbraid=0AAAAAC_c4nD4WBcnJsJpzt248QX0axOoE&gclid=Cj0KCQjwsPzHBhDCARIsALlWNG08MxgKya-4DjskYEa2q-0uQJkKqGuCKs1izbh33d-BcvaRUyZBSYIaAspPEALw_wcB) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/154540?gad_source=1&gad_campaignid=22799790467&gbraid=0AAAAAC_c4nBf6aih4kkpPyl2Pc9RDvuIo&gclid=CjwKCAiAwqHIBhAEEiwAx9cTedQmE9ryx64yjWnUINBtW4cWdQTFF84MktEXt4EAYX4UsYtQL1gBIhoCBzQQAvD_BwE) 
 
 ### 성능 요약
 
-메모리: 4.81 MB, 시간: 1.28 ms
+메모리: 4.68 MB, 시간: 2.12 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2025년 10월 27일 17:19:29
+2025년 11월 03일 19:39:42
 
 ### 문제 설명
 

@@ -1,83 +1,52 @@
-#define Coord pair<int, int>
-#define X first
-#define Y second
-
 #include <string>
 #include <vector>
-#include <queue>
 #include <algorithm>
 
 using namespace std;
 
-const int NONE = -1;
-const int MAX = 100;
 const char SEA = 'X';
+const int NONE = -1;
+const vector<pair<int, int>> dr = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-queue<Coord> q;
-vector<vector<bool>> visited(MAX, vector<bool>(MAX, false));
-
-const vector<Coord> dr = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-
-int bfs(const Coord& start, const vector<string>& maps, int row, int col);
-int getNumber(char ch);
-
-vector<int> solution(vector<string> maps) {
-    vector<int> answer;
+int dfs(int x, int y, int row, int col, const vector<string>& maps, vector<vector<bool>>& visited);
     
+vector<int> solution(vector<string> maps) {
     int row = (int)maps.size();
     int col = (int)maps[0].size();
+    vector<int> answer;
+    vector<vector<bool>> visited(row, vector<bool>(col, false));
     
-    // 무인도 방문
     for (int i = 0; i < row; i++) {
         for (int j = 0; j < col; j++) {
-            if (!visited[i][j] && maps[i][j] != SEA) {
-                int total = bfs(make_pair(i, j), maps, row, col);
-                
-                if (total > 0) {
-                    answer.push_back(total);
-                }
+            if (maps[i][j] != SEA && !visited[i][j]) {
+                int result = dfs(i, j, row, col, maps, visited);
+                answer.push_back(result);
             }
         }
     }
     
     if (answer.empty()) {
         answer.push_back(NONE);
+    } else {
+        sort(answer.begin(), answer.end());       
     }
-    
-    // 오름차순 정렬
-    sort(answer.begin(), answer.end());
-    
+  
     return answer;
 }
 
-int bfs(const Coord& start, const vector<string>& maps, int row, int col) {
-    int total = 0;
+int dfs(int x, int y, int row, int col, const vector<string>& maps, vector<vector<bool>>& visited) {
+    int result = maps[x][y] - '0';
+    visited[x][y] = true;
     
-    q.push(start);
-    visited[start.X][start.Y] = true;
-    total += getNumber(maps[start.X][start.Y]);
-    
-    while (!q.empty()) {
-        auto [x, y] = q.front(); q.pop();
+    for (const auto& [dx, dy] : dr) {
+        int nx = x + dx;
+        int ny = y + dy;
         
-        // 상하좌우 이동
-        for (const auto& [dx, dy] : dr) {
-            int nx = x + dx;
-            int ny = y + dy;
-            
-            if (nx < 0 || nx >= row || ny < 0 || ny >= col) continue;
-            if (visited[nx][ny] || maps[nx][ny] == SEA) continue;
-            
-            q.push(make_pair(nx, ny));
-            visited[nx][ny] = true;
-            total += getNumber(maps[nx][ny]);
-        }
+        if (nx < 0 || nx >= row || ny < 0 || ny >= col) continue;
+        if (maps[nx][ny] == SEA || visited[nx][ny]) continue;
+        
+        result += dfs(nx, ny, row, col, maps, visited);
     }
     
-    return total;
-}
-
-// char -> int 변환
-int getNumber(char ch) {
-    return ch - '0';
+    return result;
 }
