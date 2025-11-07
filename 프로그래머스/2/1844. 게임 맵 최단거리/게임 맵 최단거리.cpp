@@ -1,65 +1,49 @@
-#include<vector>
-#include<queue>
-#include<array>
+#define Coord pair<int, int>
+#define X first
+#define Y second
+
+#include <vector>
+#include <queue>
 
 using namespace std;
 
-int n;
-int m;
 const int WALL = 0;
-const array<int, 4> dx = {-1, 1, 0, 0};
-const array<int, 4> dy = {0, 0, -1, 1};
+const vector<Coord> dr = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-struct Node {
-    int x;
-    int y;
+int solution(vector<vector<int>> maps) {
+    int N = (int)maps.size();
+    int M = (int)maps[0].size();
     
-    Node(int x, int y) {
-        this->x = x;
-        this->y = y;
-    }
-};
-
-bool isArrived(int x, int y) {
-    return x == n - 1 && y == m - 1;
-}
-
-bool isOutOfRange(int x, int y) {
-    return x < 0 || x >= n || y < 0 || y >= m;
-}
-
-int bfs(vector<vector<int>>& maps, int x, int y) {
-    queue<Node> queue;
-    queue.push(Node(x, y));
+    Coord start = make_pair(0, 0);
+    Coord end = make_pair(N - 1, M - 1);
     
-    while(!queue.empty()) {
-        Node curr = queue.front();
-        queue.pop();
+    queue<Coord> Q;
+    vector<vector<int>> count(N, vector<int>(M));
+ 
+    Q.push(start);
+    count[start.X][start.Y] = 1;
+    
+    // 너비 우선 탐색 실행
+    while (!Q.empty()) {
+        auto [x, y] = Q.front(); Q.pop();
         
-        // 상대 팀 진영에 도착
-        if (isArrived(curr.x, curr.y)) {
-            return maps[curr.x][curr.y];
+        // 상대 팀 진영에 도착한 경우 최단 거리 반환
+        if (x == end.X && y == end.Y) {
+            return count[x][y];
         }
         
-        // 상하좌우 탐색
-        for (int i = 0; i < dx.size(); i++) {
-            int nx = curr.x + dx[i];
-            int ny = curr.y + dy[i];
+        // 상하좌우로 인접한 칸 방문
+        for (const auto& [dx, dy] : dr) {
+            int nx = x + dx;
+            int ny = y + dy;
             
-            if (isOutOfRange(nx, ny)) continue;
-            if (maps[nx][ny] == WALL || maps[nx][ny] > 1) continue;
+            if (nx < 0 || nx >= N || ny < 0 || ny >= M) continue;
+            if (maps[nx][ny] == WALL || count[nx][ny] > 0) continue;
             
-            queue.push(Node(nx, ny));
-            maps[nx][ny] = maps[curr.x][curr.y] + 1;
+            Q.push(make_pair(nx, ny));
+            count[nx][ny] = count[x][y] + 1;
         }
     }
     
     return -1;
-}
-
-int solution(vector<vector<int>> maps) {
-    n = maps.size();
-    m = maps[0].size();
-    
-    return bfs(maps, 0, 0);
 }
