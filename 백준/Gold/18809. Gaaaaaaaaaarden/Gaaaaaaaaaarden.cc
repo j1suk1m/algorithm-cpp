@@ -1,157 +1,161 @@
 #define Coord pair<int, int>
+#define X first
+#define Y second
 
-#include <iostream> // cin, cout
-#include <vector> // vector
-#include <algorithm> // max
-#include <utility> // pair
-#include <queue> // queue
+#include <bits/stdc++.h>
 
 using namespace std;
 
+enum Color {
+    NONE, GREEN, RED
+};
+
+enum Status {
+    EMPTY,
+    GREEN_ARRIVED,
+    RED_ARRIVED,
+    FLOWERED
+};
+
 const int NOT_ARRIVED = -1;
-
-// 정원 지도 값
 const int LAKE = 0;
-const int FERTILE_LAND = 2;
+const int LAND_FOR_APPLYING_CULTURE_MEDIUM = 2; // 배양액을 뿌릴 수 있는 땅
 
-// 배양액 및 상태 값
-const int GREEN = 3;
-const int RED = 4;
-const int FLOWER = 5;
+const vector<Coord> dir = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-// 상하좌우 이동
-const vector<Coord> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-
-int answer = 0;
 int N, M, G, R;
+int answer;
 
 vector<vector<int>> garden;
-vector<Coord> fertilePoints; // 배양액을 배치할 수 있는 모든 위치
-vector<Coord> selectedPoints; // 배양액을 배치하기 위해 현재 선택된 위치
-vector<int> fertilizerType; // selectedPoints 각 위치에 배치된 배양액 종류
+vector<Coord> candidateCoords; // 배양액을 뿌릴 수 있는 모든 땅의 좌표
+vector<Coord> selectedCoords; // 배양액을 뿌리기 위해 선택된 땅의 좌표
+vector<Color> colors; // selectedCoords의 각 좌표에 뿌린 배양액의 색
 
 // 프로토타입
 bool isOutOfRange(int x, int y);
-void simulate();
-void assignFertiles(int index, int greenCount);
-void selectPositions(int start, int selectedCount);
+void spread();
+void spray(int index, int greenCount);
+void select(int index, int selectedCount, int candidateCount);
 
 int main() {
     cin >> N >> M >> G >> R;
 
-    garden.assign(N, vector<int>(M));
-
-    // 정원 지도 저장
+    // 정원 저장
     for (int x = 0; x < N; x++) {
-        for (int y = 0; y < M; y++) {
-            int point;
-            cin >> point;
-            garden[x][y] = point;
+        garden.push_back(vector<int>());
 
-            // 배양액을 배치할 수 있는 위치 저장
-            if (point == FERTILE_LAND) {
-                fertilePoints.push_back(make_pair(x, y));
+        for (int y = 0; y < M; y++) {
+            int cell;
+            cin >> cell;
+            garden[x].push_back(cell);
+
+            // 배양액을 뿌릴 수 있는 땅의 좌표 저장
+            if (cell == LAND_FOR_APPLYING_CULTURE_MEDIUM) {
+                candidateCoords.push_back({x, y});
             }
         }
     }
 
-    selectPositions(0, 0);
+    int index = 0;
+    int selectedCount = 0;
+    int candidateCount = (int)candidateCoords.size();
+
+    // 배양액 초기 위치 선정 및 확산
+    select(index, selectedCount, candidateCount);
 
     cout << answer;
-    
+
     return 0;
 }
 
-// 좌표가 정원 범위를 벗어나는지 확인
 bool isOutOfRange(int x, int y) {
     return x < 0 || x >= N || y < 0 || y >= M;
 }
 
-// 선택된 배양액 배치에 대해 BFS 시뮬레이션 수행
-void simulate() {
-    int flowersCount = 0;
-
-    // 각 칸에 배양액이 처음 도착한 시간
-    vector<vector<int>> arriveTime(N, vector<int>(M, NOT_ARRIVED));
-
-    // 각 칸의 현재 상태 (GREEN / RED / FLOWER)
-    vector<vector<int>> cellState(N, vector<int>(M));
-    
+void spread() {
     queue<Coord> Q;
+    vector<vector<int>> arrivalTime(N, vector<int>(M, NOT_ARRIVED));
+    vector<vector<int>> status(N, vector<int>(M, EMPTY));
 
-    // 배양액 확산 시작 위치 초기화
-    for (int i = 0; i < (int)selectedPoints.size(); i++) {
-        auto [x, y] = selectedPoints[i];
-        arriveTime[x][y] = 0;
-        cellState[x][y] = fertilizerType[i];
-        Q.push(selectedPoints[i]);
+    for (int i = 0; i < (int)selectedCoords.size(); i++) {
+        const Coord& curr = selectedCoords[i];
+        Q.push(curr);
+        arrivalTime[curr.X][curr.Y] = 0;
+
+        if (colors[i] == GREEN) {
+            status[curr.X][curr.Y] = GREEN_ARRIVED;
+        } else {
+            status[curr.X][curr.Y] = RED_ARRIVED;
+        }
     }
 
+    int flowerCount = 0;
+
     while (!Q.empty()) {
-        auto [x, y] = Q.front(); Q.pop();
+        const Coord& curr = Q.front(); Q.pop();
 
-        // 꽃이 생성된 경우 배양액 확산 불가
-        if (cellState[x][y] == FLOWER) continue;
+        if (status[curr.X][curr.Y] == FLOWERED) {
+            continue;
+        }
 
-        for (const auto& [dx, dy] : directions) {
-            int nx = x + dx;
-            int ny = y + dy;
+        for (const auto& [dx, dy] : dir) {
+            int nx = curr.X + dx;
+            int ny = curr.Y + dy;
 
             if (isOutOfRange(nx, ny)) continue;
             if (garden[nx][ny] == LAKE) continue;
 
-            // 아직 배양액이 도착하지 않은 경우
-            if (arriveTime[nx][ny] == NOT_ARRIVED) {
-                arriveTime[nx][ny] = arriveTime[x][y] + 1;
-                cellState[nx][ny] = cellState[x][y];
-                Q.push(make_pair(nx, ny));
-            } else if ( // 같은 시간에 다른 종류의 배양액이 도착한 경우
-                arriveTime[nx][ny] == arriveTime[x][y] + 1 &&
-                cellState[nx][ny] != cellState[x][y] &&
-                cellState[nx][ny] != FLOWER
+            // 아직 배양액이 도달하지 않은 경우 현재 땅의 배양액 확산
+            if (arrivalTime[nx][ny] == NOT_ARRIVED) {
+                Q.push({nx, ny});
+                arrivalTime[nx][ny] = arrivalTime[curr.X][curr.Y] + 1;
+                status[nx][ny] = status[curr.X][curr.Y];
+            } else if ( // 서로 다른 배양액이 동시에 도달한 경우 꽃 생성
+                arrivalTime[nx][ny] == arrivalTime[curr.X][curr.Y] + 1 &&
+                status[nx][ny] != status[curr.X][curr.Y] &&
+                status[nx][ny] != FLOWERED
             ) {
-                cellState[nx][ny] = FLOWER; // 꽃 생성
-                flowersCount++;
+                status[nx][ny] = FLOWERED;
+                flowerCount++;
             }
         }
     }
 
-    answer = max(answer, flowersCount);
+    answer = max(answer, flowerCount);
 }
 
-// 선택된 위치에 배양액 배치
-void assignFertiles(int index, int greenCount) {
-    // 모든 위치에 배양액을 배치한 경우
-    if (index == (int)selectedPoints.size()) {
-        if (greenCount == G) simulate();
+void spray(int index, int greenCount) {
+    // 종료 조건
+    if (index == G + R) {
+        if (greenCount == G) spread(); // 배양액 확산
         return;
     }
 
-    // 초록색 배양액 배치
+    // case 1: 초록색 배양액 뿌리기
     if (greenCount < G) {
-        fertilizerType[index] = GREEN;
-        assignFertiles(index + 1, greenCount + 1);
+        colors[index] = GREEN;
+        spray(index + 1, greenCount + 1);
     }
 
-    // 빨간색 배양액 배치
+    // case 2: 빨간색 배양액 뿌리기
     if (index - greenCount < R) {
-        fertilizerType[index] = RED;
-        assignFertiles(index + 1, greenCount);
+        colors[index] = RED;
+        spray(index + 1, greenCount);
     }
 }
 
-// 배양액을 배치할 위치 조합 선택
-void selectPositions(int start, int selectedCount) {
-    // 배양액을 배치할 위치를 모두 선택한 경우
+void select(int index, int selectedCount, int candidateCount) {
+    // 종료 조건
     if (selectedCount == G + R) {
-        fertilizerType.assign(G + R, 0);
-        assignFertiles(0, 0);
+        colors.assign(G + R, NONE);
+        spray(0, 0); // 배양액 뿌리기
         return;
     }
 
-    for (int i = start; i < (int)fertilePoints.size(); i++) {
-        selectedPoints.push_back(fertilePoints[i]);
-        selectPositions(i + 1, selectedCount + 1);
-        selectedPoints.pop_back();
+    // 조합
+    for (int i = index; i < candidateCount; i++) {
+        selectedCoords.push_back(candidateCoords[i]);
+        select(i + 1, selectedCount + 1, candidateCount);
+        selectedCoords.pop_back();
     }
 }
