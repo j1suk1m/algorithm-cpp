@@ -1,61 +1,74 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-int N; // 나무의 수, [1, 1e6]
-int M; // 가져가려고 하는 나무의 길이, [1, 2 * 1e9]
-vector<int> treeHeights; // 나무의 길이 벡터
+const int MAX_N = (int)1e6;
 
-bool check(int cutterHeight) {
-    long long sum = 0LL;
+int N;
+long long M;
 
-    for (int i = N - 1; i >= 0; i--) {
-        if (treeHeights[i] <= cutterHeight) break;
+vector<int> trees(MAX_N);
 
-        sum += (long long)treeHeights[i] - cutterHeight;
-    }
-
-    return sum >= (long long)M;
-}
-
-int getCutterHeight() {
-    int left = 0; // check(left) == true // 나무를 가져갈 수 있는 경우
-    int right = treeHeights[N - 1]; // check(right) == false // 나무를 가져갈 수 없는 경우
-
-    while (left + 1 < right) {
-        int mid = left + (right - left) / 2; // (left + right) / 2와 동치, 오버플로 방지
-
-        if (check(mid)) { // 가져갈 수 있는 나무의 길이가 M 이상 -> 절단기 높이를 높여도 M 이상 가져갈 수 있는지 확인
-            left = mid;
-        } else { // 가져갈 수 있는 나무의 길이가 M 미만 -> 절단기 높이를 낮춰 나무를 더 많이 자름
-            right = mid;
-        }
-    }
-
-    return left;
-}
+// 프로토타입
+bool isPossible(int height);
+int findMaxHeight();
 
 int main() {
     cin >> N >> M;
 
     // 나무 높이 저장
     for (int i = 0; i < N; i++) {
-        int treeHeight;
-
-        cin >> treeHeight;
-        
-        treeHeights.push_back(treeHeight);
+        cin >> trees[i];
     }
 
-    // 이분 탐색을 위한 오름차순 정렬
-    sort(treeHeights.begin(), treeHeights.end());
+    // 나무 높이 오름차순 정렬
+    sort(trees.begin(), trees.begin() + N);
 
-    // 이분 탐색을 이용한 절단기 최대 높이 계산
-    int answer = getCutterHeight();
+    // 절단기 높이의 최댓값 계산
+    int maxHeight = findMaxHeight();
 
-    cout << answer;
-    
+    cout << maxHeight;
+
     return 0;
+}
+
+bool isPossible(int height) {
+    long long sum = 0LL; // int 오버플로 방지
+
+    // trees는 오름차순 정렬된 상태
+    // 뒤에서부터 순회하며 height 초과하는 나무만 계산
+    for (int i = N - 1; i >= 0; i--) {
+        if (trees[i] <= height) {
+            break; // 이후부터는 모두 height 이하이므로 누적 계산 불필요
+        }
+
+        sum += (long long)trees[i] - height;
+    }
+
+    // 절단기 높이가 height일 때 얻을 수 있는 나무의 총 길이가
+    // 목표 길이 M을 충족하는지 확인
+    return sum >= M;
+}
+
+int findMaxHeight() {
+    int left = 0; // isPossible(left) == true
+    int right = trees[N - 1]; // isPossible(right) == false
+
+    while (left + 1 < right) {
+        // left와 right 사이에서
+        // 조건을 만족하는 절단기 최대 높이를 좁혀나감
+        int mid = left + (right - left) / 2; // (left + right) / 2와 동일
+
+        if (isPossible(mid)) {
+            // 절단기 높이가 mid일 때 목표 길이 M을 얻을 수 있다면
+            // 절단기 높이를 높여 나무를 더 적게 잘라도 M을 얻을 수 있는지 확인
+            left = mid;
+        } else {
+            // 절단기 높이가 mid일 때 목표 길이 M을 얻을 수 없으므로
+            // 절단기 높이를 낮춰 나무를 더 많이 자름
+            right = mid;
+        }
+    }
+
+    return left;
 }
