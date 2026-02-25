@@ -1,83 +1,86 @@
-#include <iostream>
-#include <vector>
-#include <queue>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 struct Node {
     int x;
     int y;
-    bool hasBroken;
+    bool skillUsed; // (x, y)에 도착할 때까지 벽을 부순 적이 있는지
     int count;
 
-    Node(int x, int y, bool hasBroken, int count) {
+    Node(int x, int y, bool skillUsed, int count) {
         this->x = x;
         this->y = y;
-        this->hasBroken = hasBroken;
+        this->skillUsed = skillUsed;
         this->count = count;
     }
 };
 
 const int WALL = 1;
-const int BREAKABLE = 0; // 벽 하나를 부술 수 있는 상태
-const int HAS_BROKEN = 1; // 이미 벽 하나를 부순 상태
+const int SKILL_NOT_USED = 0; // 벽 하나를 부술 수 있는 상태
+const int SKILL_USED = 1; // 이미 벽 하나를 부숴서 더이상 부술 수 없는 상태
 
-const vector<pair<int, int>> dr = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-
-int N, M;
-vector<vector<int>> maps(1001, vector<int>(1001));
-vector<vector<vector<bool>>> visited(2, vector<vector<bool>>(1001, vector<bool>(1001, false)));
+const vector<pair<int, int>> dir = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
 int main() {
+    int N, M;
     cin >> N >> M;
 
-    // 지도 저장
+    vector<vector<int>> maps(N + 1, vector<int>(M + 1));
+
+    // 맵 정보 저장
     for (int i = 1; i <= N; i++) {
-        string line;
-        cin >> line;
+        string row;
+        cin >> row;
 
         for (int j = 1; j <= M; j++) {
-            maps[i][j] = line[j - 1] - '0';
+            maps[i][j] = row[j - 1] - '0';
         }
     }
 
-    queue<Node> Q;
+    // 출발지, 도착지 정의
+    pair<int, int> source = make_pair(1, 1);
+    pair<int, int> destination = make_pair(N, M);
 
-    Q.push(Node(1, 1, false, 1));
-    visited[BREAKABLE][1][1] = true;
+    queue<Node> Q;
+    vector<vector<vector<int>>> visited(2, vector<vector<int>>(N + 1, vector<int>(M + 1, false)));
+
+    // 출발지 방문 처리
+    Q.push(Node(source.first, source.second, false, 1));
+    visited[SKILL_NOT_USED][source.first][source.second] = true;
 
     int answer = -1;
 
     while (!Q.empty()) {
-        auto [x, y, hasBroken, count] = Q.front(); Q.pop();
+        Node curr = Q.front(); Q.pop();
 
-        // 종료 지점에 도착한 경우 최단 경로 반환
-        if (x == N && y == M) {
-            answer = count;
+        // 목적지에 도착한 경우 탐색 종료
+        if (curr.x == destination.first && curr.y == destination.second) {
+            answer = curr.count;
             break;
         }
 
-        // 상하좌우로 인접한 칸 이동
-        for (const auto& [dx, dy] : dr) {
-            int nx = x + dx;
-            int ny = y + dy;
+        // 상하좌우 이동
+        for (const auto& [dx, dy] : dir) {
+            int nx = curr.x + dx;
+            int ny = curr.y + dy;
 
-            if (nx < 1 || nx > N || ny < 1 || ny > M) continue;
+            if (nx < 1 || nx > N || ny < 1 || ny > M) {
+                continue;
+            }
 
-            if (maps[nx][ny] == WALL) { // 다음 칸이 벽인 경우 -> 부숴야만 해당 칸 방문 가능
-                if (!hasBroken && !visited[HAS_BROKEN][nx][ny]) { // 벽을 부술 수 있어서 부순 경우
-                    Q.push(Node(nx, ny, true, count + 1));
-                    visited[HAS_BROKEN][nx][ny] = true;
+            if (maps[nx][ny] == WALL) { // 인접한 칸이 벽인 경우
+                if (!curr.skillUsed && !visited[SKILL_USED][nx][ny]) { // 부술 수 있다면 부수고 방문
+                    Q.push(Node(nx, ny, true, curr.count + 1));
+                    visited[SKILL_USED][nx][ny] = true;
                 }
-            } else { // 다음 칸이 빈칸인 경우 -> 부수지 않아도 해당 칸 방문 가능
-                if (!hasBroken && !visited[BREAKABLE][nx][ny]) { // 벽을 부술 수 있지만 부수지 않은 경우
-                    Q.push(Node(nx, ny, false, count + 1));
-                    visited[BREAKABLE][nx][ny] = true;
-                }
-
-                if (hasBroken && !visited[HAS_BROKEN][nx][ny]) { // 벽을 부술 수 없어서 부수지 않은 경우
-                    Q.push(Node(nx, ny, true, count + 1));
-                    visited[HAS_BROKEN][nx][ny] = true;
+            } else { // 인접한 칸이 벽이 아닌 경우
+                if (!curr.skillUsed && !visited[SKILL_NOT_USED][nx][ny]) { // 부술 수 있는데 부수지 않고 방문
+                    Q.push(Node(nx, ny, false, curr.count + 1));
+                    visited[SKILL_NOT_USED][nx][ny] = true;
+                } else if (curr.skillUsed && !visited[SKILL_USED][nx][ny]) { // 부술 수 없어서 부수지 않고 방문
+                    Q.push(Node(nx, ny, true, curr.count + 1));
+                    visited[SKILL_USED][nx][ny] = true;
                 }
             }
         }
